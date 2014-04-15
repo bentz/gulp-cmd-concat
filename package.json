@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "cmd-util": "~0.3.12"
+  },
+  "devDependencies": {
+    "should": "~3.3.0",
+    "run-sequence": "~0.3.6",
+    "gulp-mocha": "~0.4.1",
+    "gulp": "~3.6.0",
+    "gulp-clean": "~0.2.4",
+    "gulp-jshint": "~1.5.3"
+  }
+}
