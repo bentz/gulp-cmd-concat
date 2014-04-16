@@ -1,6 +1,9 @@
 {
   "dependencies": {
-    "cmd-util": "~0.3.12"
+    "cmd-util": "~0.3.12",
+    "underscore": "~1.6.0",
+    "gulp-util": "~2.2.14",
+    "event-stream": "~3.1.2"
   },
   "devDependencies": {
     "should": "~3.3.0",
