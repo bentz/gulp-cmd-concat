@@ -6,6 +6,3 @@ define("foo", [ "bar" ], function(require) {
     require("bar");
 });
 define("bar", [], function() {});
-define('jquery.dialog', [], function(){
-});
-

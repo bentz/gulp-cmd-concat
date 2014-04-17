@@ -1,0 +1,6 @@
+/*! define foo/foo.css */
+/*! import ../index.css */
+body {
+    content: 'foo';
+    background: url('./foo.css');
+}
