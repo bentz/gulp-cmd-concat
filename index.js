@@ -3,6 +3,8 @@ var gulp = require('gulp'),
     es = require('event-stream'),
     _ = require('underscore'),
     gutil = require('gulp-util'),
+    ast = require('cmd-util').ast,
+    iduri = require('cmd-util').iduri,
     script = require('./lib/script'),
     css = require('./lib/css');
 
@@ -22,7 +24,7 @@ module.exports = function(filename, options){
 
     separator: gutil.linefeed,
 
-    include: 'self',
+    include: 'relative',
 
     noncmd: false,
 
@@ -32,10 +34,9 @@ module.exports = function(filename, options){
     }
   }, options || {});
 
-  var buffer = [],
+  var datas = [],
       cached = [],
-      firstFile = null,
-      newLineBuffer = new Buffer(options.separator);
+      firstFile = null;
 
   function doConcat(file) {
     if (file.isNull()) return;
@@ -44,20 +45,43 @@ module.exports = function(filename, options){
     var extname = path.extname(file.path),
         processor = options.processors[extname];
 
-    if (!processor) return this.emit('error', new gutil.PluginError(PLUGIN_NAME, 'no processors for file ' + file.path));
-    
-    if (!firstFile) firstFile = file;
-    else buffer.push(newLineBuffer);
-    
+    if (!firstFile) {
+      firstFile = file;
+    } else {
+      datas.push(options.separator);
+    }
+    if (!processor || options.noncmd) return datas.push(file.contents.toString('utf8'));
     var data = processor(file, options, cached);
-    buffer.push(new Buffer(data));
+    datas.push(data);
   }
 
   function end(){
-    if (buffer.length === 0) return this.emit('end');
+    if (datas.length === 0) return this.emit('end');
+    var data = datas.join('');
 
-    var data = Buffer.concat(buffer),
-        fpath = filename,
+    if (/\.js$/.test(filename) && !options.noncmd) {
+      var astCache = ast.getAst(data),
+          idCaches = ast.parse(astCache).map(function(o){
+            return o.id;
+          });
+
+      data = ast.modify(astCache, {
+        dependencies: function(v) {
+          if (v.charAt(0) === '.') {
+            var altId = iduri.absolute(idCaches[0], v);
+            if (_.contains(idCaches, altId)) return v;
+          }
+
+          var ext = path.extname(v);
+          if (ext && /\.(?:html|txt|tpl|handlebars|css)$/.test(ext)) return null;
+
+          return v;
+        }
+      }).print_to_string(options.uglify);
+    }
+
+    data = new Buffer(data);
+    var fpath = filename,
         resultFile = new gutil.File({
           path: fpath,
           contents: data
