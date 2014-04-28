@@ -1,6 +1,6 @@
 {
   "name": "gulp-cmd-concat",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ported from grunt-cmd-concat",
   "main": "index.js",
   "directories": {
